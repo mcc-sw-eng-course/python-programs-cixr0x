@@ -1,0 +1,1 @@
+[{"name": "Juan", "address": "Calle 13", "phone": "33225566", "email": "eljuan@dominio.com"}, {"name": "Pedro", "address": "Av Idayvuelta", "phone": "33492333", "email": "elpedro@mismodominio.com"}, {"name": "Maria", "address": "Av Siempreviva", "phone": "32435465", "email": "maria@mainstream.com"}]
