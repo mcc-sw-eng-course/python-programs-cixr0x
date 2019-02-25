@@ -17,6 +17,16 @@ def file_to_list():
             return pList
     except ValueError:
         raise ValueError("List only supports numbers, one of the values of the file is not a number")
+    except FileNotFoundError:
+        raise FileNotFoundError("Could not find file in path "+input_file_path_name)
+
+def list_to_file(p_list):
+    try:
+        with open(output_file_path_name, 'w') as f:
+            list_string = ','.join(str(e) for e in p_list)
+            f.write(list_string)
+    except FileNotFoundError:
+        raise FileNotFoundError("Could not write file in path "+input_file_path_name)
 
 def mergeSort(alist):
     if len(alist)>1:
@@ -49,14 +59,16 @@ def mergeSort(alist):
             j=j+1
             k=k+1
 
-alist = [54,26,93,17,77,31,44,55,20]
-mergeSort(alist)
-print(alist)
+def execute_merge_sort():
+    alist = file_to_list()
+    mergeSort(alist)
+    list_to_file(alist)
 
-set_input_data(input("SetInputData"))
-set_output_data(input("SetOutputData"))
-print (input_file_path_name)
-print (output_file_path_name)
-print (file_to_list())
+inputFile = input("Input name of the file to sort")
+set_input_data(inputFile)
+outputFile = input("Set file name to store sorted output")
+set_output_data(outputFile)
+
+execute_merge_sort()
 
 
