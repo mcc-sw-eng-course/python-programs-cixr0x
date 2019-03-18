@@ -24,7 +24,6 @@ class TictacBoard(board.Board):
 
     def antidiagonal_equals(self, state):
         for i in range(0, self.size_x):
-            print("x{} y{} state{}".format(i, self.size_x-1 - i, self.get_state(i, self.size_x-1 - i)))
             if (self.get_state(i, self.size_x-1 - i)!=state):
                 return False
         return True
@@ -52,3 +51,15 @@ class TictacBoard(board.Board):
                 if (self.get_state(i, j) == " "):
                     return False
         return True
+
+    def draw_tictac(self):
+        numRows = len(self.board)
+        numColumns = len(self.board[0])
+        count = 1
+        for i in range(0, numRows):
+            for j in range(0, numColumns):
+                symbol = self.board[i][j] if self.board[i][j]!=" " else str(count)
+                print(symbol, end=" | ")
+                count = count + 1
+            print()
+            print("------------")
