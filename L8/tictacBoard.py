@@ -52,6 +52,14 @@ class TictacBoard(board.Board):
                     return False
         return True
 
+    def get_available_coords(self): 
+        coord_list = []
+        for i in range(0, self.size_x):
+            for j in range(0, self.size_y):
+                if (self.get_state(i, j) == self.default_state):
+                    coord_list.append([i,j])
+        return coord_list
+                
     def draw_tictac(self):
         numRows = len(self.board)
         numColumns = len(self.board[0])

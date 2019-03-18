@@ -1,5 +1,6 @@
 import tictacBoard
 import math
+from random import randint
 
 class Tictac:
     def __init__(self):
@@ -7,11 +8,19 @@ class Tictac:
         self.player_mark = ["O", "X"]
         self.players = 2
         self.current_player=0
+        self.computer_player_enabled=True
+        self.computer_player_turn = 1
 
 
     def main_loop(self):
         self.board.draw_tictac()
-        coord_input =self.request_mark_input("Player {} turn, please enter a location to mark (1-9)\n".format(self.player_mark[self.current_player]))
+        if (self.computer_player_enabled and self.current_player == self.computer_player_turn):
+            print("Waiting for computer selection...")
+            #call algorithm for computer player
+            coord_input = self.computer_select_random()  
+        else:
+            coord_input =self.request_mark_input("Player {} turn, please enter a location to mark (1-9)\n".format(self.player_mark[self.current_player]))
+        
         self.board.set_state(coord_input[0], coord_input[1], self.player_mark[self.current_player])
         
         if (self.board.check_win(self.player_mark[0])):
@@ -26,6 +35,12 @@ class Tictac:
         else:
             self.current_player = (self.current_player + 1) % 2
             self.main_loop()
+
+
+    def computer_select_random(self):
+        available_coords = self.board.get_available_coords()
+        coord_input = available_coords[randint(0, len(available_coords)-1) ]
+        return coord_input
 
     def location_to_coord(self, location):
         y = math.floor((location-1) / 3)
