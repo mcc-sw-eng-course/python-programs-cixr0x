@@ -51,7 +51,7 @@ class Tictac:
         location_input = input (message)
         try:
             location_input = int(location_input)
-        except:
+        except ValueError:
             return self.request_mark_input("Location is invalid, please enter an integer number from 1 to 9\n")
 
         if (location_input < 0 or location_input > 9):

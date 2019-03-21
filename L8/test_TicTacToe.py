@@ -2,6 +2,8 @@ import unittest
 import tictac
 import board
 import tictacBoard
+from unittest.mock import patch
+from random import randint
 
 
 class TestTictac(unittest.TestCase):
@@ -60,6 +62,17 @@ class TestTictac(unittest.TestCase):
         self.assertTrue(brd_win.check_tie())
         brd.draw_tictac()
         
+    @patch('tictac.Tictac.request_mark_input', return_value=[randint(0, 2), randint(0, 2)])
+    #@patch('builtins.input', return_value=randint(1, 9))
+    def  test_tictac(self, input):
+        tt = tictac.Tictac()
+        tt.main_loop()
+        
+    #@patch('tictac.Tictac.request_mark_input', return_value=[randint(0, 2), randint(0, 2)])
+    @patch('builtins.input', return_value=1)
+    def  test_tictac_input(self, input):
+        tt = tictac.Tictac()
+        self.assertEqual(tt.request_mark_input("test"), [0,0])
 
 if __name__ == '__main__':
     unittest.main()
