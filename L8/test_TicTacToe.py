@@ -13,9 +13,7 @@ class TestTictac(unittest.TestCase):
         self.assertEqual(brd.board,[['', '', ''], ['', '', ''], ['', '', 'X']])
         state=brd.get_state(2, 2)
         self.assertEqual(state,"X")
-        #msg="|  |  | \n------------\n |  |  | \n------------\n |  | X | \n------------\n"
-        #printedBoard=brd.draw()
-        #self.assertEqual(printedBoard,msg)
+
     
     def test_tictacBoard(self):
         brd = tictacBoard.TictacBoard()
@@ -59,7 +57,13 @@ class TestTictac(unittest.TestCase):
         brd_win.set_state(1, 2, "0")
         self.assertTrue(brd_win.check_tie())
         brd.draw_tictac()
-        
+
+    def test_TicTac(self):
+        brd=tictac.Tictac()
+        availableCoords=brd.board.get_available_coords()
+        selectedNumber=brd.computer_select_random()
+        self.assertTrue(selectedNumber in availableCoords)
+
 
 if __name__ == '__main__':
     unittest.main()
