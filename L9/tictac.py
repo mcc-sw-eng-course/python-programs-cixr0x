@@ -1,6 +1,9 @@
 import tictacBoard
 import math
 from random import randint
+import socket
+import threading
+
 
 class Tictac:
     def __init__(self):
@@ -14,6 +17,7 @@ class Tictac:
 
     def main_loop(self):
         self.board.draw_tictac()
+
         if (self.computer_player_enabled and self.current_player == self.computer_player_turn):
             print("Waiting for computer selection...")
             #call algorithm for computer player
