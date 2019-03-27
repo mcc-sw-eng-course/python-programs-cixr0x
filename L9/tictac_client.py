@@ -32,6 +32,7 @@ class Tictac:
 
         if (self.connection_status == "connected"):
             self.update_status()
+            self.board.draw_tictac()
 
         if (self.current_player == self.player_number):
             location = input("Your turn!, select a location to mark")
@@ -42,6 +43,12 @@ class Tictac:
             self.main_loop()
 
     def send_mark_request(self, location):
+        try: 
+            location = int(location)
+        except ValueError:
+            print ("Invalid input")
+            return
+
         response = self.send_message({
             "message_type": "mark",
             "location":int(location),
@@ -63,6 +70,7 @@ class Tictac:
         self.current_player = state["current_player"]
         if (self.board.board != state["board"]):
             self.board.board = state["board"]
+            print("")
             self.board.draw_tictac()
 
         if (state["winner"] != -1 ):
