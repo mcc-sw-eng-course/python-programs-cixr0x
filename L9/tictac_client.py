@@ -6,10 +6,10 @@ import threading
 import tictac
 import time
 import json
-
+import os
 
 class Tictac:
-    def __init__(self):
+    def __init__(self, ip = "127.0.0.1"):
         self.board = tictacBoard.TictacBoard()
         self.player_mark = ["O", "X"]
         self.players = 2
@@ -18,7 +18,7 @@ class Tictac:
         self.computer_player_turn = 1
         self.player_number = -1
         self.connection_status = "disconnected"
-        self.TCP_IP = '127.0.0.1'
+        self.TCP_IP = ip
         self.TCP_PORT = 5050
         self.BUFFER_SIZE = 1024
         self.finisehd = False
@@ -28,6 +28,8 @@ class Tictac:
         
         if (self.connection_status == "disconnected"):
             self.connect_server()
+            self.redraw()
+            
         #MESSAGE =  input("Enter command")
 
         if (self.connection_status == "connected"):
@@ -56,6 +58,7 @@ class Tictac:
             elif (response["error"] == "marked"):
                 print ("That location is already marked! Please select a different one")
 
+
     def update_status(self):
         state = self.send_message({
             "message_type": "state_update"
@@ -63,17 +66,27 @@ class Tictac:
         self.current_player = state["current_player"]
         if (self.board.board != state["board"]):
             self.board.board = state["board"]
-            self.board.draw_tictac()
+            self.redraw()
 
         if (state["winner"] != -1 ):
             if (state["winner"]==self.player_number):
+
+                self.board.draw()
                 print ("Congratulations! You WIN!")
             else:
+                self.board.draw()
                 print ("Tough luck my friend, you lost")
             self.finisehd = True
         if (state["tie"] == 1 ):
             print ("Game ended in a tie!")
+            self.board.draw()
             self.finisehd = True
+
+    def redraw(self):
+        os.system('clear')
+        self.board.draw_tictac()
+        if (self.current_player != self.player_number and self.current_player != -1):
+            print("Waiting for other player to select...")
 
     def connect_server(self):
         print("Connecting to server")
@@ -90,6 +103,7 @@ class Tictac:
             print ("Server error: "+response["error_message"])
             self.connection_status = "rejected"
 
+        
     
     def send_message(self, message):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

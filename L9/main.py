@@ -9,9 +9,13 @@ print ('Argument List:', str(sys.argv))
 
 if (len(sys.argv) >= 2):
     mode = sys.argv[1]
-    #ip = sys.argv[2]
+    try:
+        ip = sys.argv[2]
+    except IndexError:
+        ip = "127.0.0.1"
+
     if (mode=="client"):
-        tt=tictac_client.Tictac()
+        tt=tictac_client.Tictac(ip)
     elif (mode == "server"):
         tt =tictac_server.Tictac()
 else:

@@ -19,7 +19,7 @@ class Tictac:
         self.tie = 0
 
     def init_server_socket(self):
-        self.bind_ip = "127.0.0.1"
+        self.bind_ip = "0.0.0.0"
         self.bind_port = 5050
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((self.bind_ip, self.bind_port))
