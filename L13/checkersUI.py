@@ -22,16 +22,17 @@ class CheckersUI:
         self.selected_piece = None
         self.dest = None
         self.available_moves = []
+        self.dark_peon_img = PhotoImage(file=os.getcwd()+"/dark_peon.png")
+        self.light_peon_img = PhotoImage(file=os.getcwd()+"/light_peon.png")
+        self.dark_king_img = PhotoImage(file=os.getcwd()+"/dark_king.png")
+        self.light_king_img = PhotoImage(file=os.getcwd()+"/light_king.png")
 
     def render(self):
         self.window.pack()
 
         #board_string = ""
         odd_square = True
-        dark_peon_img = PhotoImage(file=os.getcwd()+"/dark_peon.png")
-        light_peon_img = PhotoImage(file=os.getcwd()+"/light_peon.png")
-        dark_king_img = PhotoImage(file=os.getcwd()+"/dark_king.png")
-        light_king_img = PhotoImage(file=os.getcwd()+"/light_king.png")
+        
 
         for i in range(self.checkers_controller.board.size_x):
             for j in range(self.checkers_controller.board.size_y):
@@ -59,25 +60,18 @@ class CheckersUI:
                 if piece:
                     owner = piece["owner"]
                     if (piece["type"] == "peon"):
-                        self.window.create_image(x, y, anchor="nw", image=dark_peon_img if owner ==1 else light_peon_img)
+                        self.window.create_image(x, y, anchor="nw", image=self.dark_peon_img if owner ==1 else self.light_peon_img)
                     elif (piece["type"] == "king"):
-                        self.window.create_image(x, y, anchor="nw", image=dark_king_img if owner ==1 else light_king_img)
-                    
-                
-
+                        self.window.create_image(x, y, anchor="nw", image=self.dark_king_img if owner ==1 else self.light_king_img)
                 
                 odd_square =  not odd_square
             odd_square =  not odd_square
-                #board_string=board_string + "["+str(content)+"]"
-            
-            #board_string=board_string + "\n"
         
         mainloop()
 
     def handle_click(self, event):
         board_x = int(event.x / self.square_size_x)
         board_y = int(event.y / self.square_size_y)
-        print ("clicked at square", board_x,board_y)
         piece = self.checkers_controller.board.get_piece(board_x, board_y)
 
         if (piece and (self.selected_piece != piece) and (piece["owner"] == self.checkers_controller.current_player)):
@@ -93,48 +87,13 @@ class CheckersUI:
 
         if (self.selected_piece and self.dest):
             self.checkers_controller.move_piece(self.selected_piece[0], self.selected_piece[1], self.dest[0], self.dest[1])
-            self.selected_piece = None
-            self.available_moves = []
-
-        print ("Selected piece: ", self.selected_piece, " Destination: ", self.dest)
+            if (self.checkers_controller.current_player == self.checkers_controller.board.get_piece(self.dest[0], self.dest[1])["owner"]
+            and  self.checkers_controller.available_jumps(self.dest[0], self.dest[1])):
+                self.selected_piece = (self.dest[0], self.dest[1])
+                self.available_moves = self.checkers_controller.available_jumps(self.selected_piece[0], self.selected_piece[1])
+            else:
+                self.selected_piece = None
+                self.available_moves = []
 
         self.render()
-
-
-    
-
-
-   
-c = CheckersController()
-ui = CheckersUI(c)
-print (c.pieces)
-c.printSimple()
-ui.render()
-time.sleep(1)
-c.move_piece(1, 0, 1, 1)
-c.printSimple()
-ui.render()
-time.sleep(1)
-c.move_piece(1, 0, 0, 1)
-c.printSimple()
-ui.render()
-time.sleep(1)
-c.move_piece(1, 2, 2, 3)
-c.printSimple()
-ui.render()
-time.sleep(1)
-c.move_piece(0, 5, 1, 4)
-c.printSimple()
-ui.render()
-time.sleep(1)
-c.move_piece(0, 5, 1, 4)
-c.printSimple()
-ui.render()
-time.sleep(1)
-print (c.available_moves())
-print (c.available_jumps())
-c.move_piece(2, 3, 0, 5)
-c.printSimple()
-print (c.available_moves())
-print (c.available_jumps())
 

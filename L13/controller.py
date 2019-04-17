@@ -4,13 +4,11 @@ import time
 
 class CheckersController:
     pieces = []
-    def placePiece(self, piece, x, y):
-        piece["alive"] = True        
+    def placePiece(self, piece, x, y):   
         self.board.set_piece(x, y, piece)
 
     def buildPiece(self):
         return {
-            "alive": None,
             "owner":None, 
             "type":"peon",
             "index":None            
@@ -19,6 +17,7 @@ class CheckersController:
     def __init__(self):
         self.board = Board()
         self.current_player = 1
+        self.player_jumped=False
         for a in range(12):
             piece = self.buildPiece()
             piece["owner"] = 1
@@ -65,7 +64,7 @@ class CheckersController:
                 content = " "
                 piece = self.board.get_piece(j, i)
 
-                if piece and piece["alive"]:
+                if piece:
                     content = piece["owner"]
                 board_string=board_string + "["+str(content)+"]"
             
@@ -75,6 +74,9 @@ class CheckersController:
     def move_is_valid(self, source_x, source_y, dest_x, dest_y):
 
         if (not self.check_piece_exist(source_x, source_y, dest_x, dest_y)):
+            return False
+
+        if (self.player_jumped):
             return False
 
         if (not self.check_inbounds(source_x, source_y, dest_x, dest_y)):
@@ -208,12 +210,15 @@ class CheckersController:
             self.board.set_piece(dest_x, dest_y, self.board.get_piece(source_x, source_y)) 
             self.board.set_piece(int((dest_x+source_x)/2), int((dest_y+source_y)/2), None)
             self.board.set_piece(source_x, source_y, None) 
+            self.player_jumped=True
             if (self.board.get_piece(dest_x, dest_y)["owner"] == 1 and dest_y == 7):
                 self.board.get_piece(dest_x, dest_y)["type"] = "king"
             if (self.board.get_piece(dest_x, dest_y)["owner"] == 2 and dest_y == 0):
                 self.board.get_piece(dest_x, dest_y)["type"] = "king"
-            
-            self.current_player = 2 if self.current_player == 1 else 1
+
+            if (not self.available_jumps(dest_x, dest_y)):
+                self.current_player = 2 if self.current_player == 1 else 1
+                self.player_jumped = False
 
     def available_moves(self, source_x, source_y):
         available_moves_list = []
