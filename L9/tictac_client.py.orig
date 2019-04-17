@@ -34,6 +34,7 @@ class Tictac:
 
         if (self.connection_status == "connected"):
             self.update_status()
+            self.board.draw_tictac()
 
         if (self.current_player == self.player_number):
             location = input("Your turn!, select a location to mark")
