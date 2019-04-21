@@ -17,7 +17,14 @@ class CheckersController:
     def __init__(self):
         self.board = Board()
         self.current_player = 1
+        self.opponent_player=2
         self.player_jumped=False
+        self.win=False
+        self.draw=False
+        self.winner=0 #Player (number)who is the winner
+        self.current_player_pieces=None
+        self.opponent_player_pieces=None
+
         for a in range(12):
             piece = self.buildPiece()
             piece["owner"] = 1
@@ -70,6 +77,66 @@ class CheckersController:
             
             board_string=board_string + "\n"
         print (board_string)
+
+    #creo que esta funcion ya no es necesaria
+    def check_num_pieces(self):
+
+        self.current_player_pieces=self.get_available_pieces_player(self.current_player)
+        self.opponent_player_pieces=self.get_available_pieces_player(self.opponent_player)
+
+        number_pieces_player_1=len(self.current_player_pieces)
+        number_pieces_player_2=len(self.opponent_player_pieces)
+
+        if(number_pieces_player_1==0):
+            self.win=True
+            self.winner=2
+
+        if(number_pieces_player_2==0):
+            self.win=True
+            self.winner=1
+
+
+    def check_num_possible_moves(self):
+
+        current_player_available_moves=self.get_available_moves_player(self.current_player)
+        opponent_player_available_moves=self.get_available_moves_player(self.opponent_player)
+        # if current player's moves are empty and opponent player's moves are empty (i.e. there are no moves left in the game)
+        if((not current_player_available_moves)and (not opponent_player_available_moves)):
+            self.draw=True
+
+        else:
+            # if current player's moves are empty  (i.e.  current player is left with no moves)
+            if (not current_player_available_moves):
+                self.win=True
+                self.winner=self.opponent_player
+
+    # returns a list of tuples with all the coordinates of the player's pieces
+    def get_available_pieces_player(self,current_player):
+        current_player_pieces_coordinates=[]
+        for i in range(self.board.size_x):
+            for j in range(self.board.size_y):
+                current_piece=self.board.get_piece(j,i)
+                if (current_piece and (current_piece["owner"]==current_player)):
+                    coordinates=(j,i)
+                    current_player_pieces_coordinates.append(coordinates)
+        return current_player_pieces_coordinates
+
+    # returns a list of tuples with all possible moves and jumps  for current player
+    def get_available_moves_player(self,current_player):
+        available_moves=[]
+        available_coordinates=self.get_available_pieces_player(current_player)
+        for i in range(len(available_coordinates)):
+            coordinate=available_coordinates[i]
+            moves=self.available_moves(coordinate[0],coordinate[1])
+            for j in range(len(moves)):
+                if(moves[j]):
+                    available_moves.append(moves[j])
+            jumps=self.available_jumps(coordinate[0],coordinate[1])
+            for k in range(len(jumps)):
+                if(jumps[k]):
+                    available_moves.append(jumps[k])
+        return available_moves
+
 
     def move_is_valid(self, source_x, source_y, dest_x, dest_y):
 
@@ -196,20 +263,28 @@ class CheckersController:
         return False
             
     def move_piece(self, source_x, source_y, dest_x, dest_y):
-        if (self.move_is_valid(source_x, source_y, dest_x, dest_y)):            
-            self.board.set_piece(dest_x, dest_y, self.board.get_piece(source_x, source_y)) 
-            self.board.set_piece(source_x, source_y, None)
+
+        current_player_available_jumps=self.available_jumps(source_x,source_y)
+
+        #if there are jumps available, piece should jump instead of moving
+        if (self.move_is_valid(source_x, source_y, dest_x, dest_y) and (not current_player_available_jumps)):
+            self.board.set_piece(dest_x, dest_y, self.board.get_piece(source_x, source_y))
+            self.board.set_piece(source_x, source_y, None) #source square is left without piece
             if (self.board.get_piece(dest_x, dest_y)["owner"] == 1 and dest_y == 7):
                 self.board.get_piece(dest_x, dest_y)["type"] = "king"
             if (self.board.get_piece(dest_x, dest_y)["owner"] == 2 and dest_y == 0):
                 self.board.get_piece(dest_x, dest_y)["type"] = "king"
 
             self.current_player = 2 if self.current_player == 1 else 1
+            if (self.current_player==2):
+                self.opponent_player=1
+            else:
+                self.opponent_player = 2
 
         if (self.jump_is_valid(source_x, source_y, dest_x, dest_y)):
-            self.board.set_piece(dest_x, dest_y, self.board.get_piece(source_x, source_y)) 
-            self.board.set_piece(int((dest_x+source_x)/2), int((dest_y+source_y)/2), None)
-            self.board.set_piece(source_x, source_y, None) 
+            self.board.set_piece(dest_x, dest_y, self.board.get_piece(source_x, source_y))
+            self.board.set_piece(int((dest_x+source_x)/2), int((dest_y+source_y)/2), None) #opponent's piece is eliminated
+            self.board.set_piece(source_x, source_y, None) #source square is left without piece
             self.player_jumped=True
             if (self.board.get_piece(dest_x, dest_y)["owner"] == 1 and dest_y == 7):
                 self.board.get_piece(dest_x, dest_y)["type"] = "king"
@@ -218,6 +293,10 @@ class CheckersController:
 
             if (not self.available_jumps(dest_x, dest_y)):
                 self.current_player = 2 if self.current_player == 1 else 1
+                if (self.current_player == 2):
+                    self.opponent_player = 1
+                else:
+                    self.opponent_player = 2
                 self.player_jumped = False
 
     def available_moves(self, source_x, source_y):
