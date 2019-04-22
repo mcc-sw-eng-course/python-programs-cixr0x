@@ -24,6 +24,8 @@ class CheckersController:
         self.winner=0 #Player (number)who is the winner
         self.current_player_pieces=None
         self.opponent_player_pieces=None
+        self.current_player_available_moves=None
+        self.opponent_player_available_moves =None
 
         for a in range(12):
             piece = self.buildPiece()
@@ -64,7 +66,7 @@ class CheckersController:
         self.placePiece(self.pieces[23], 6, 5)
 
     #just a function to visualize the board
-    def printSimple(self):
+    """def printSimple(self):
         board_string = ""
         for i in range(self.board.size_x):
             for j in range(self.board.size_y):
@@ -76,7 +78,7 @@ class CheckersController:
                 board_string=board_string + "["+str(content)+"]"
             
             board_string=board_string + "\n"
-        print (board_string)
+        print (board_string)"""
 
     #creo que esta funcion ya no es necesaria
     def check_num_pieces(self):
@@ -98,15 +100,15 @@ class CheckersController:
 
     def check_num_possible_moves(self):
 
-        current_player_available_moves=self.get_available_moves_player(self.current_player)
-        opponent_player_available_moves=self.get_available_moves_player(self.opponent_player)
+        self.current_player_available_moves=self.get_available_moves_player(self.current_player)
+        self.opponent_player_available_moves=self.get_available_moves_player(self.opponent_player)
         # if current player's moves are empty and opponent player's moves are empty (i.e. there are no moves left in the game)
-        if((not current_player_available_moves)and (not opponent_player_available_moves)):
+        if((not self.current_player_available_moves)and (not self.opponent_player_available_moves)):
             self.draw=True
 
         else:
             # if current player's moves are empty  (i.e.  current player is left with no moves)
-            if (not current_player_available_moves):
+            if (not self.current_player_available_moves):
                 self.win=True
                 self.winner=self.opponent_player
 
