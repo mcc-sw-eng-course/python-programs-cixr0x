@@ -4,4 +4,5 @@ from checkersUI import CheckersUI
 c = CheckersController()
 ui = CheckersUI(c)
 
-ui.render()
+#ui.render()
+ui.welcome_render()

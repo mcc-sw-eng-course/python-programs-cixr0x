@@ -16,9 +16,11 @@ class CheckersController:
 
     def __init__(self):
         self.board = Board()
-        self.current_player = 1
-        self.opponent_player=2
+        self.current_player = 1 #*
+        self.opponent_player=2#*
+        self.computer_player=2 #** these parameters will be changed by the user once s/he selects which pieces s/he wants
         self.player_jumped=False
+        self.computer_jumped_player=False
         self.win=False
         self.draw=False
         self.winner=0 #Player (number)who is the winner
@@ -66,7 +68,7 @@ class CheckersController:
         self.placePiece(self.pieces[23], 6, 5)
 
     #just a function to visualize the board
-    """def printSimple(self):
+    def printSimple(self):
         board_string = ""
         for i in range(self.board.size_x):
             for j in range(self.board.size_y):
@@ -78,24 +80,15 @@ class CheckersController:
                 board_string=board_string + "["+str(content)+"]"
             
             board_string=board_string + "\n"
-        print (board_string)"""
+        #print (board_string)
+        return board_string
 
-    #creo que esta funcion ya no es necesaria
-    def check_num_pieces(self):
 
-        self.current_player_pieces=self.get_available_pieces_player(self.current_player)
-        self.opponent_player_pieces=self.get_available_pieces_player(self.opponent_player)
+    def check_num_pieces(self, player):
 
-        number_pieces_player_1=len(self.current_player_pieces)
-        number_pieces_player_2=len(self.opponent_player_pieces)
-
-        if(number_pieces_player_1==0):
-            self.win=True
-            self.winner=2
-
-        if(number_pieces_player_2==0):
-            self.win=True
-            self.winner=1
+        board=self.printSimple()
+        num_pieces=board.count(player)
+        return num_pieces
 
 
     def check_num_possible_moves(self):
@@ -149,12 +142,14 @@ class CheckersController:
             for k in range(len(jumps)):
                 if (jumps[k]):
                     available_moves.append(jumps[k])
-            if(not jumps):
+                    self.computer_jumped_player = True
+        if (not available_moves):
+            for l in range(len(available_coordinates)):
+                coordinate = available_coordinates[l]
                 moves=self.available_moves(coordinate[0],coordinate[1])
                 for j in range(len(moves)):
                     if(moves[j]):
                         available_moves.append(moves[j])
-
         return available_moves
 
 

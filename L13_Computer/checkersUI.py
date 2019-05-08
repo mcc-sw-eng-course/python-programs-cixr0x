@@ -1,4 +1,7 @@
 from tkinter  import *# note that module name has changed from Tkinter in Python 2 to tkinter in Python 3
+from tkinter import messagebox
+from tkinter.ttk import Combobox
+
 from controller import CheckersController
 from random import randrange
 import time
@@ -10,6 +13,8 @@ class CheckersUI:
     def __init__(self, checkers_controller):
         self.checkers_controller = checkers_controller
         self.master = Tk()
+        self.master.title("Checkers")
+        self.master.geometry('725x512')
         self.window_size_x = 512
         self.window_size_y = 512
         self.square_size_x = self.window_size_x / self.checkers_controller.board.size_x
@@ -27,11 +32,18 @@ class CheckersUI:
         self.light_peon_img = PhotoImage(file=os.getcwd()+"/light_peon.png")
         self.dark_king_img = PhotoImage(file=os.getcwd()+"/dark_king.png")
         self.light_king_img = PhotoImage(file=os.getcwd()+"/light_king.png")
-
+        self.num_pieces_player1=self.checkers_controller.check_num_pieces("1")
+        self.num_pieces_player2=self.checkers_controller.check_num_pieces("2")
+        self.lbl_score_player1=Label(self.master,text="Black pieces: "+str(self.num_pieces_player1))
+        self.lbl_score_player2=Label(self.master,text="White pieces: "+str(self.num_pieces_player2))
 
 
     def render(self):
-        self.window.pack()
+        self.window.place(x=0,y=0)
+        self.lbl_score_player1.place(x=550, y=40)
+        self.lbl_score_player2.place(x=550, y=60)
+        label1 = Label(self.master, text="Pieces on the board: ")
+        label1.place(x=550, y=20)
 
         # To determine if someone won or if the game ended in a tie
         self.checkers_controller.check_num_possible_moves()
@@ -43,7 +55,6 @@ class CheckersUI:
 
         #board_string = ""
         odd_square = True
-        
 
         for i in range(self.checkers_controller.board.size_x):
             for j in range(self.checkers_controller.board.size_y):
@@ -79,22 +90,41 @@ class CheckersUI:
 
             odd_square =  not odd_square
         if(self.checkers_controller.win):
-            msg="Player "+ str(self.checkers_controller.winner)+ " wins!"
-            label_1 = Label(self.master, text=msg, font="Times 32")
-            label_1.pack()
-            self.master.update()
-            time.sleep(1.5)
+            msg=""
+            if(self.checkers_controller.winner==1):
+                msg= "Black player wins!"
+            else:
+                msg= "White player wins!"
+            messagebox.showinfo("End of the game",msg)
+            time.sleep(1)
             exit()
 
         if(self.checkers_controller.draw):
-            label_2 = Label(self.master, text=("Game ended in a draw"), font="Times 32")
-            label_2.pack()
-            self.master.update()
-            time.sleep(1.5)
+            messagebox.showinfo("End of the game", "Game ended in a draw")
+            time.sleep(1)
             exit()
+        mainloop()
 
+    def welcome_render(self):
+        self.welcome=Label(self.master,text="Select the pieces you want to play with:")
+        self.combo=Combobox(self.master)
+        self.combo['values']=("Black pieces", "White pieces")
+        self.welcome.place(x=250,y=220)
+        self.combo.place(x=285,y=240)
+        self.combo.bind("<<ComboboxSelected>>",self.selection_changed)
 
         mainloop()
+
+    def selection_changed(self,event): #part of the welcome render
+        value=self.combo.get()
+        self.welcome.destroy()
+        self.combo.destroy()
+        if(value== "White pieces"): #if the selection is black, the paramaters will stay as they were originally
+            self.checkers_controller.computer_player=1
+            self.checkers_controller.current_player=2
+            self.checkers_controller.opponent_player=1
+        self.render()
+
 
     def handle_click(self, event):
 
@@ -127,14 +157,29 @@ class CheckersUI:
                 self.selected_piece = None
                 self.available_moves = []
 
-        #Computer move. Computer is player number 2. This part will randomly select which piece to move
-        if(self.checkers_controller.current_player==2):
+        #Computer move.  This part will randomly select which piece to move. Jumps have priority over moves
+        if(self.checkers_controller.current_player==self.checkers_controller.computer_player):
             possible_jumps_moves=self.checkers_controller.get_available_jumps_or_moves_player(self.checkers_controller.current_player)
             num_possible_jumps_moves=len(possible_jumps_moves)
             if(num_possible_jumps_moves>0):
                 num_randomly_chosen_move=randrange(0,num_possible_jumps_moves)
                 random_move=possible_jumps_moves[num_randomly_chosen_move]
                 self.checkers_controller.move_piece(random_move[0], random_move[1], random_move[2],random_move[3])
+                #checks whether the computer can jump more than one piece
+                moved_piece=self.checkers_controller.get_available_jumps(random_move[2],random_move[3])
+                if(moved_piece and self.checkers_controller.computer_jumped_player):
+                    num_possible_jumps=len(moved_piece)
+                    num_randomly_chosen_move = randrange(0, num_possible_jumps)
+                    random_move = moved_piece[num_randomly_chosen_move]
+                    self.checkers_controller.move_piece(random_move[0], random_move[1], random_move[2], random_move[3])
+                self.checkers_controller.computer_jumped_player=False
+
+
+        #Update number of pieces available per player
+        self.num_pieces_player1 = self.checkers_controller.check_num_pieces("1")
+        self.num_pieces_player2 = self.checkers_controller.check_num_pieces("2")
+        self.lbl_score_player1.configure(text="Black pieces: "+str(self.num_pieces_player1))
+        self.lbl_score_player2.configure(text="White pieces: " + str(self.num_pieces_player2))
 
         """print("Current player: ", self.checkers_controller.current_player, "Opponent player: ",self.checkers_controller.opponent_player)
         pieces_player= self.checkers_controller.get_available_pieces_player(self.checkers_controller.current_player)

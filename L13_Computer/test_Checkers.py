@@ -15,9 +15,8 @@ class testCheckers(unittest.TestCase):
 
     def test_controller(self):
         control=controller.CheckersController()
-        control.check_num_pieces()
-        num_pieces_controller=control.current_player_pieces
-        self.assertEquals(len(num_pieces_controller),12)
+        num_pieces=control.check_num_pieces("1")
+        self.assertEqual(num_pieces,12)
         control.check_num_possible_moves()
         self.assertEquals(len(control.current_player_available_moves),7)
         available_moves_current_player=control.get_available_moves_player(control.current_player)
@@ -27,7 +26,7 @@ class testCheckers(unittest.TestCase):
         piece_3=control.board.get_piece(1,2)
         piece_4=control.board.get_piece(2,2)
         control.move_piece(1,2,2,3)
-        #piece_5 is the same square piece_3 used to be
+        #piece_5 is in the same square piece_3 used to be
         piece_5=control.board.get_piece(1,2)
         self.assertEqual(piece_5,None)
         control.move_piece(4, 5, 3, 4)
